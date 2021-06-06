@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vaccine Availability Checker</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      header {
+        text-align: center;
+        padding: 2rem;
+        font-size: large;
+        background: rgb(60, 61, 59);
+        color: aliceblue;
+      }
+      .container {
+        display: flex;
+        margin-top: 10px;
+        justify-content: center;
+      }
+      footer {
+        position: fixed;
+        width: 100%;
+        bottom: 0;
+        text-align: center;
+        padding: 1rem;
+        font-size: large;
+        background: rgb(60, 61, 59);
+        color: aliceblue;
+      }
+
+      ul {
+        margin: 20px;
+        display: flex;
+        flex-direction: column;
+        list-style-type: none;
+        align-items: center;
+        overflow: hidden;
+      }
+      ul li {
+        padding: 8px;
+      }
+      .btn {
+        padding: 10px;
+        background-color: green;
+        color: white;
+        margin: 20px 20px 0px 20px;
+        border-radius: 10px;
+        border-style: none;
+      }
+      .btn:hover {
+        color: white;
+        background-color: black;
+      }
+      .datey {
+        color: #e33327;
+        font-size: 20px;
+        font-weight: bold;
+        display: flex;
+        margin-top: 20px;
+        justify-content: center;
+        text-decoration: underline;
+      }
+      .heading {
+        text-align: center;
+        text-decoration: underline;
+        margin-top: 15px;
+      }
+      .link{
+        text-decoration: none;
+        color: whitesmoke;
+        pointer: cursor;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="text/javascript">
+      const fetcher = (today) => {
+        let dd = String(today.getDate()).padStart(2, "0");
+        let mm = String(today.getMonth() + 1).padStart(2, "0");
+        let yyyy = today.getFullYear();
+
+        da = dd + "-" + mm + "-" + yyyy;
+        console.log(da);
+        let inner45 = "";
+        let inner18 = "";
+        fetch(
+          `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=${pin}&date=${da}`
+        )
+          .then((res) => res.json())
+          .then((data) => {
+            console.log(data);
+            data.sessions.forEach((ele) => {
+              if (ele.min_age_limit === 45) {
+                inner45 += `<li>${ele.fee_type} - ${ele.vaccine} (${ele.available_capacity}) doses available in ${ele.name}`;
+              } else {
+                inner18 += `<li>${ele.fee_type} - ${ele.vaccine} (${ele.available_capacity}) doses available in ${ele.name}`;
+              }
+            });
+            if (inner45.length == 0) {
+              inner45 += `<h3>No vaccines available for this age group check further dates</h3>`;
+            }
+            if (inner18.length == 0) {
+              inner18 += `<h3>No vaccines available for this age group check further dates</h3>`;
+            }
+            document.getElementById("result45").innerHTML = inner45;
+            document.getElementById("result18").innerHTML = inner18;
+            document.getElementById(
+              "ma"
+            ).innerHTML = `DISPLAYING DATA FOR ${da}`;
+          });
+      };
+
+      //taking input
+      let pin = prompt("Enter your pincode");
+      while (pin.length != 6) {
+        alert("invalid pincode enter again!!");
+        pin = prompt("enter pincode");
+      }
+      let todays = new Date();
+      fetcher(todays);
+
+      let counter = 0;
+      const nextDay = () => {
+        counter += 1;
+        let tomorrow = new Date();
+        tomorrow.setDate(todays.getDate() + counter);
+        fetcher(tomorrow);
+      };
+
+      const prevDay = () => {
+        counter -= 1;
+        let tomorrow = new Date();
+        tomorrow.setDate(todays.getDate() + counter);
+        fetcher(tomorrow);
+      };
+    </script>
+    <header>
+      <h1>Vaccine Availability Checker</h1>
+      <div class="container">
+        <button class="btn" onclick="prevDay()">Previous Day</button>
+        <button class="btn" onclick="nextDay()">Next Day</button>
+      </div>
+    </header>
+    <div>
+      <div class="datey" id="ma"></div>
+      <h3 class="heading">FOR 45+ AGE GROUP</h3>
+      <ul id="result45"></ul>
+      <hr />
+      <h3 class="heading">FOR 18+ AGE GROUP</h3>
+      <ul id="result18"></ul>
+    </div>
+    <footer>Copyright &copy; Dheeraj Bisht<br> <a class= "link"href="https://www.instagram.com/_programmer_jr/"> click here to follow</a></footer>
+  </body>
+</html>
